@@ -12,13 +12,22 @@ end
 function RCAB_ActionButton_OnEvent(event)
     RCAB_Old_ActionButton_OnEvent(event);
 
-    -- Check for ActionButton initialization
+    -- ActionButton initialization
     if not this.RCAB_initialized then
         RCAB_ActionButton_Init();
         this.RCAB_initialized = true;
     end
 
-    RCAB_ActionButton_Update();
+    if this.RCAB_learnedSkill then
+        if HasAction(ActionButton_GetPagedID(this)) then
+            RCAB_ActionButton_UpdateCounter();
+        else
+            RCAB_ActionButton_ResetButton();
+        end
+    elseif event == "ACTIONBAR_SLOT_CHANGED" and arg1 == ActionButton_GetPagedID(this) then
+        -- Learn resource cost right after player placed a skill in a slot
+        RCAB_ActionButton_LearnSkill();
+    end
 end
 
 function RCAB_ActionButton_SetTooltip()
@@ -36,24 +45,27 @@ function RCAB_ActionButton_Init()
     -- Add the resourceLabel FontString to the ActionButton
     this.RCAB_resourceLabel = this:CreateFontString("", "ARTWORK", "NumberFontNormalSmall");
     this.RCAB_resourceLabel:SetPoint("BOTTOMRIGHT", this, "BOTTOMRIGHT");
+    RCAB_ActionButton_ResetButton();
+end
+
+function RCAB_ActionButton_ResetButton()
     this.RCAB_resourceLabel:SetText("");
     this.RCAB_learnedSkill = false;
 end
 
-function RCAB_ActionButton_Update()
-    if this.RCAB_learnedSkill then
-        local remainingCasts = math.floor(RCAB_GetPlayerResource(this.RCAB_resourceType) / this.RCAB_resourceCost);
-        this.RCAB_resourceLabel:SetText(remainingCasts);
-
-        RCAB_ActionButton_UpdateTextColor();
-    end
+function RCAB_ActionButton_UpdateCounter()
+    local remainingCasts = math.floor(RCAB_GetPlayerResource(this.RCAB_resourceType) / this.RCAB_resourceCost);
+    this.RCAB_resourceLabel:SetText(remainingCasts);
+    RCAB_ActionButton_UpdateTextColor();
 end
 
 function RCAB_ActionButton_LearnSkill()
-    if not this.RCAB_learnedSkill then
-        -- Try to infer resource cost and type from the GameTooltip
-        local fontString2 = getglobal("GameTooltipTextLeft2");
-        RCAB_ActionButton_LearnSkillFromLine(fontString2:GetText());
+    -- Try to infer resource cost and type from the GameTooltip
+    local fontString2 = getglobal("GameTooltipTextLeft2");
+    RCAB_ActionButton_LearnSkillFromLine(fontString2:GetText());
+
+    if this.RCAB_learnedSkill then
+        RCAB_ActionButton_UpdateCounter();
     end
 end
 
@@ -76,7 +88,7 @@ end
 
 function RCAB_ActionButton_UpdateTextColor()
     if this.RCAB_resourceType == "Mana" then
-        this.RCAB_resourceLabel:SetTextColor(0.4, 0.4, 1.0);
+        this.RCAB_resourceLabel:SetTextColor(0.5, 0.5, 1.0);
     elseif this.RCAB_resourceType == "Rage" then
         this.RCAB_resourceLabel:SetTextColor(1.0, 0.7, 0.4);
     elseif this.RCAB_resourceType == "Energy" then

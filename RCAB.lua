@@ -18,6 +18,12 @@ function RCAB_ActionButton_OnEvent(event)
         this.RCAB_initialized = true;
     end
 
+    -- Delayed initialization of persistent settings
+    if not this.RCAB_settingsLoaded then
+        RCAB_ActionButton_LoadSettings();
+    end
+
+    -- Update displayed value
     if this.RCAB_learnedSkill then
         if HasAction(ActionButton_GetPagedID(this)) then
             RCAB_ActionButton_UpdateCounter();
@@ -27,6 +33,9 @@ function RCAB_ActionButton_OnEvent(event)
     elseif event == "ACTIONBAR_SLOT_CHANGED" and arg1 == ActionButton_GetPagedID(this) then
         -- Learn resource cost right after player placed a skill in a slot
         RCAB_ActionButton_LearnSkill();
+    elseif event == "ACTIONBAR_PAGE_CHANGED" then
+        -- Learn resource cost right after player placed a skill in a slot
+        RCAB_ActionButton_LoadSettings();
     end
 end
 
@@ -80,6 +89,7 @@ function RCAB_ActionButton_LearnSkillFromLine(line)
             this.RCAB_resourceType = resourceType;
 
             this:RegisterEvent("UNIT_" .. string.upper(resourceType));
+            RCAB_ActionButton_SaveSettings();
 
             this.RCAB_learnedSkill = true;
         end
@@ -97,6 +107,31 @@ function RCAB_ActionButton_UpdateTextColor()
         this.RCAB_resourceLabel:SetTextColor(0.4, 1.0, 0.4);
     else
         this.RCAB_resourceLabel:SetTextColor(0.5, 0.5, 0.5);
+    end
+end
+
+-- Persistent storage
+
+function RCAB_ActionButton_SaveSettings()
+    local slotID = ActionButton_GetPagedID(this);
+
+    if not RCAB_savedResourceCosts then
+        RCAB_savedResourceCosts = {};
+    end
+    RCAB_savedResourceCosts[slotID] = {};
+    RCAB_savedResourceCosts[slotID].resourceCost = this.RCAB_resourceCost;
+    RCAB_savedResourceCosts[slotID].resourceType = this.RCAB_resourceType;
+end
+
+function RCAB_ActionButton_LoadSettings()
+    local slotID = ActionButton_GetPagedID(this);
+    if RCAB_savedResourceCosts then
+        if RCAB_savedResourceCosts[slotID] then
+            this.RCAB_resourceCost = RCAB_savedResourceCosts[slotID].resourceCost;
+            this.RCAB_resourceType = RCAB_savedResourceCosts[slotID].resourceType;
+            this.RCAB_learnedSkill = true;
+            this.RCAB_settingsLoaded = true;
+        end
     end
 end
 

@@ -1,4 +1,5 @@
 ## Interface: 30300
-## Title: ResourceCount Action Buttons
+## Title: ResourceCount ActionButtons
 ## Notes: Displays how often you can cast a spell before you run out of resources on the action buttons.
+## SavedVariablesPerCharacter: RCAB_savedResourceCosts
 RCAB.lua

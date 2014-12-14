@@ -64,6 +64,9 @@ function RCAB_ActionButton_LearnSkillFromLine(line)
            resourceType == "Health" then
             this.RCAB_resourceCost = resourceCost;
             this.RCAB_resourceType = resourceType;
+
+            this:RegisterEvent("UNIT_" .. string.upper(resourceType));
+
             this.RCAB_learnedSkill = true;
         end
     end

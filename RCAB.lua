@@ -44,6 +44,8 @@ function RCAB_ActionButton_Update()
     if this.RCAB_learnedSkill then
         local remainingCasts = math.floor(RCAB_GetPlayerResource(this.RCAB_resourceType) / this.RCAB_resourceCost);
         this.RCAB_resourceLabel:SetText(remainingCasts);
+
+        RCAB_ActionButton_UpdateTextColor();
     end
 end
 
@@ -69,6 +71,20 @@ function RCAB_ActionButton_LearnSkillFromLine(line)
 
             this.RCAB_learnedSkill = true;
         end
+    end
+end
+
+function RCAB_ActionButton_UpdateTextColor()
+    if this.RCAB_resourceType == "Mana" then
+        this.RCAB_resourceLabel:SetTextColor(0.4, 0.4, 1.0);
+    elseif this.RCAB_resourceType == "Rage" then
+        this.RCAB_resourceLabel:SetTextColor(1.0, 0.7, 0.4);
+    elseif this.RCAB_resourceType == "Energy" then
+        this.RCAB_resourceLabel:SetTextColor(1.0, 1.0, 0.4);
+    elseif this.RCAB_resourceType == "Health" then
+        this.RCAB_resourceLabel:SetTextColor(0.4, 1.0, 0.4);
+    else
+        this.RCAB_resourceLabel:SetTextColor(0.5, 0.5, 0.5);
     end
 end
 

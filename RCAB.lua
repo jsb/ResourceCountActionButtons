@@ -21,6 +21,8 @@ function RCAB_ActionButton_OnEvent(event)
     -- Delayed initialization of persistent settings
     if not this.RCAB_settingsLoaded then
         RCAB_ActionButton_LoadSettings();
+    elseif event == "ACTIONBAR_PAGE_CHANGED" then
+        RCAB_ActionButton_LoadSettings();
     end
 
     -- Update displayed value
@@ -33,9 +35,6 @@ function RCAB_ActionButton_OnEvent(event)
     elseif event == "ACTIONBAR_SLOT_CHANGED" and arg1 == ActionButton_GetPagedID(this) then
         -- Learn resource cost right after player placed a skill in a slot
         RCAB_ActionButton_LearnSkill();
-    elseif event == "ACTIONBAR_PAGE_CHANGED" then
-        -- Learn resource cost right after player placed a skill in a slot
-        RCAB_ActionButton_LoadSettings();
     end
 end
 

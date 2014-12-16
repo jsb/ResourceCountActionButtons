@@ -157,18 +157,22 @@ function RCAB_GetPlayerResource(resourceType)
         playerResourceType = "Energy";
     end
 
-    local playerResourceAmount = UnitMana("player");
     if resourceType == "Health" then
         return UnitHealth("player");
     elseif resourceType == "Ammo" then
-        local ammoSlotID = GetInventorySlotInfo("AmmoSlot");
-        if GetInventoryItemTexture("player", ammoSlotID) then
-            return GetInventoryItemCount("player", ammoSlotID);
+        local pageID = ActionButton_GetPagedID(this);
+        if IsUsableAction(pageID) then
+            local ammoSlotID = GetInventorySlotInfo("AmmoSlot");
+            if GetInventoryItemTexture("player", ammoSlotID) then
+                return GetInventoryItemCount("player", ammoSlotID);
+            else
+                return 0;
+            end
         else
             return 0;
         end
     elseif resourceType == playerResourceType then
-        return playerResourceAmount;
+        return UnitMana("player");
     else
         return 0;
     end

@@ -66,14 +66,18 @@ end
 function RCAB_ActionButton_LearnSkill()
     -- Try to infer resource cost and type from the GameTooltip
     local fontString2 = getglobal("GameTooltipTextLeft2");
-    RCAB_ActionButton_LearnSkillFromLine(fontString2:GetText());
+    RCAB_ActionButton_LearnSkillFromResourceCost(fontString2:GetText());
+
+    local fontString1 = getglobal("GameTooltipTextLeft1");
+    RCAB_ActionButton_LearnSkillFromName(fontString1:GetText());
 
     if this.RCAB_learnedSkill then
+        RCAB_ActionButton_SaveSettings();
         RCAB_ActionButton_UpdateCounter();
     end
 end
 
-function RCAB_ActionButton_LearnSkillFromLine(line)
+function RCAB_ActionButton_LearnSkillFromResourceCost(line)
     if line ~= nil then
         local _, _, resourceCost, resourceType = string.find(line, "(%d+) (%a+)");
         if resourceType == "Mana" or
@@ -82,10 +86,22 @@ function RCAB_ActionButton_LearnSkillFromLine(line)
            resourceType == "Health" then
             this.RCAB_resourceCost = resourceCost;
             this.RCAB_resourceType = resourceType;
+            this.RCAB_learnedSkill = true;
 
             this:RegisterEvent("UNIT_" .. string.upper(resourceType));
-            RCAB_ActionButton_SaveSettings();
+        end
+    end
+end
 
+function RCAB_ActionButton_LearnSkillFromName(line)
+    if line ~= nil then
+        if line == "Auto Shot" or
+           line == "Shoot Bow" or
+           line == "Shoot Crossbow" or
+           line == "Shoot Gun" or
+           line == "Throw" then
+            this.RCAB_resourceCost = 1;
+            this.RCAB_resourceType = "Ammo";
             this.RCAB_learnedSkill = true;
         end
     end
@@ -101,7 +117,7 @@ function RCAB_ActionButton_UpdateTextColor()
     elseif this.RCAB_resourceType == "Health" then
         this.RCAB_resourceLabel:SetTextColor(0.4, 1.0, 0.4);
     else
-        this.RCAB_resourceLabel:SetTextColor(0.5, 0.5, 0.5);
+        this.RCAB_resourceLabel:SetTextColor(0.7, 0.7, 0.7);
     end
 end
 
@@ -133,14 +149,24 @@ end
 function RCAB_GetPlayerResource(resourceType)
     local playerResourceTypeNumber = UnitPowerType("player");
     local playerResourceType = "";
-    if     playerResourceTypeNumber == 0 then playerResourceType = "Mana";
-    elseif playerResourceTypeNumber == 1 then playerResourceType = "Rage";
-    elseif playerResourceTypeNumber == 3 then playerResourceType = "Energy";
+    if playerResourceTypeNumber == 0 then
+        playerResourceType = "Mana";
+    elseif playerResourceTypeNumber == 1 then
+        playerResourceType = "Rage";
+    elseif playerResourceTypeNumber == 3 then
+        playerResourceType = "Energy";
     end
 
     local playerResourceAmount = UnitMana("player");
     if resourceType == "Health" then
         return UnitHealth("player");
+    elseif resourceType == "Ammo" then
+        local ammoSlotID = GetInventorySlotInfo("AmmoSlot");
+        if GetInventoryItemTexture("player", ammoSlotID) then
+            return GetInventoryItemCount("player", ammoSlotID);
+        else
+            return 0;
+        end
     elseif resourceType == playerResourceType then
         return playerResourceAmount;
     else

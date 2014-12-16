@@ -18,15 +18,11 @@ function RCAB_ActionButton_OnEvent(event)
         this.RCAB_initialized = true;
     end
 
-    -- Delayed initialization of persistent settings
-    if not this.RCAB_settingsLoaded then
+    if not this.RCAB_settingsLoaded or event == "ACTIONBAR_PAGE_CHANGED" then
+        -- Delayed initialization of persistent settings
         RCAB_ActionButton_LoadSettings();
-    elseif event == "ACTIONBAR_PAGE_CHANGED" then
-        RCAB_ActionButton_LoadSettings();
-    end
-
-    -- Update displayed value
-    if this.RCAB_learnedSkill then
+    elseif this.RCAB_learnedSkill then
+        -- Update counter
         if HasAction(ActionButton_GetPagedID(this)) then
             RCAB_ActionButton_UpdateCounter();
         else

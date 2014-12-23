@@ -70,6 +70,9 @@ function RCAB_ActionButton_LearnSkill()
 
     local fontString1 = getglobal("GameTooltipTextLeft1");
     RCAB_ActionButton_LearnSkillFromName(fontString1:GetText());
+    
+    local fontString3 = getglobal("GameTooltipTextLeft3");
+    RCAB_ActionButton_LearnSkillFromDescription(fontString3:GetText());
 
     if this.RCAB_learnedSkill then
         RCAB_ActionButton_SaveSettings();
@@ -79,6 +82,7 @@ end
 
 function RCAB_ActionButton_LearnSkillFromResourceCost(line)
     if line ~= nil then
+        -- Skills that cost primary resources
         local _, _, resourceCost, resourceType = string.find(line, "(%d+) (%a+)");
         if resourceType == "Mana" or
            resourceType == "Rage" or
@@ -95,6 +99,7 @@ end
 
 function RCAB_ActionButton_LearnSkillFromName(line)
     if line ~= nil then
+        -- Ranged weapon skills
         if line == "Auto Shot" or
            line == "Shoot Bow" or
            line == "Shoot Crossbow" or
@@ -103,6 +108,19 @@ function RCAB_ActionButton_LearnSkillFromName(line)
             this.RCAB_resourceCost = 1;
             this.RCAB_resourceType = "Ammo";
             this.RCAB_learnedSkill = true;
+        end
+    end
+end
+
+function RCAB_ActionButton_LearnSkillFromDescription(line)
+    if line ~= nil then
+        -- Life Tap
+        local found, _, healthCost = string.find(line, "Converts (%d+) health into %d+ mana.");
+        if found then
+            this.RCAB_resourceCost = tonumber(healthCost);
+            this.RCAB_resourceType = "Health";
+            this.RCAB_learnedSkill = true;
+            this:RegisterEvent("UNIT_HEALTH");
         end
     end
 end

@@ -20,8 +20,10 @@ RCAB_tooltip = nil
 
 function RCAB_Init()
     -- hook ActionButton event callback
-    RCAB_Old_ActionButton_OnEvent = ActionButton_OnEvent
-    ActionButton_OnEvent = RCAB_ActionButton_OnEvent
+    if not RCAB_Old_ActionButton_OnEvent then
+        RCAB_Old_ActionButton_OnEvent = ActionButton_OnEvent
+        ActionButton_OnEvent = RCAB_ActionButton_OnEvent
+    end
     
     -- do one initial scan of all action slots
     for pagedID = 1, 120 do

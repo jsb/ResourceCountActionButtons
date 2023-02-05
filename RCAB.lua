@@ -170,9 +170,12 @@ function RCAB_GetPlayerResource(resourceType, reagentName)
     elseif resourceType == "Ammo" then
         local pagedID = ActionButton_GetPagedID(this)
         if IsUsableAction(pagedID) then
-            local ammoSlotID = GetInventorySlotInfo("AmmoSlot")
+            local ammoSlotID = GetInventorySlotInfo("AMMOSLOT")
+            local rangedSlotID = GetInventorySlotInfo("RANGEDSLOT")
             if GetInventoryItemTexture("player", ammoSlotID) then
                 return GetInventoryItemCount("player", ammoSlotID)
+            elseif GetInventoryItemTexture("player", rangedSlotID) then
+                return GetInventoryItemCount("player", rangedSlotID)
             else
                 return 0
             end
